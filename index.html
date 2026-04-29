@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LP訴求ストラテジスト</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
+:root{--bg:#0e0e10;--surface:#17171a;--surface2:#1e1e23;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--accent:#7c6dfa;--accent2:#a78bfa;--green:#34d399;--orange:#fb923c;--red:#f87171;--text:#f0f0f5;--text2:#9090a0;--text3:#606070;--mono:'DM Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:14px;min-height:100vh}
+/* Header */
+.header{border-bottom:1px solid var(--border);padding:0 28px;height:52px;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:rgba(14,14,16,.95);backdrop-filter:blur(12px);z-index:100}
+.logo{font-family:var(--mono);font-size:13px;color:var(--accent2);letter-spacing:.05em}
+.logo span{color:var(--text3)}
+.main{max-width:860px;margin:0 auto;padding:36px 20px 80px}
+/* Steps */
+.step{display:none}.step.active{display:block;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.step-label{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.step-title{font-size:21px;font-weight:700;margin-bottom:6px}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:28px}
+/* Card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:14px}
+.card-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+/* Inputs */
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500}
+.fg:last-child{margin-bottom:0}
+input[type=text],input[type=url],textarea,select{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:80px;line-height:1.65}
+select option{background:var(--surface2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.required{font-size:10px;color:var(--accent);background:rgba(124,109,250,.15);padding:1px 5px;border-radius:3px;margin-left:4px;font-weight:600}
+.info-box{background:rgba(124,109,250,.07);border:1px solid rgba(124,109,250,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:14px}
+/* Tab bar */
+.tab-bar{display:flex;gap:3px;background:var(--surface2);border-radius:8px;padding:3px;margin-bottom:14px}
+.tab-btn{flex:1;padding:7px;font-size:12px;font-weight:500;border:none;background:none;color:var(--text3);border-radius:6px;cursor:pointer;font-family:inherit;transition:all .15s}
+.tab-btn.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+/* Nav */
+.nav-row{display:flex;gap:10px;align-items:center;margin-top:22px;flex-wrap:wrap}
+/* Buttons */
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#6b5ce7}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-sm{padding:5px 12px;font-size:12px}
+/* Creative selector */
+.creative-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.cc{background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .15s;user-select:none}
+.cc:hover{border-color:var(--border2)}
+.cc.on{border-color:var(--accent);background:rgba(124,109,250,.1)}
+.cc-icon{font-size:20px;margin-bottom:5px}
+.cc-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.cc.on .cc-name{color:var(--accent2)}
+.cc-desc{font-size:11px;color:var(--text3);line-height:1.4}
+/* Section nav */
+.sec-nav{display:flex;gap:3px;background:var(--surface2);border-radius:9px;padding:3px;margin-bottom:14px;flex-wrap:wrap}
+.sec-btn{padding:7px 12px;font-size:12px;font-weight:500;border:none;background:none;color:var(--text3);border-radius:6px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.sec-btn.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.sec-panel{display:none}.sec-panel.active{display:block;animation:fadeUp .18s ease}
+/* Radio / check groups */
+.radio-group{display:flex;flex-direction:column;gap:7px}
+.radio-lbl{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .15s}
+.radio-lbl:has(input:checked){border-color:var(--accent);background:rgba(124,109,250,.07)}
+.radio-lbl input{margin-top:2px;accent-color:var(--accent)}
+.radio-lbl span{font-size:13px;font-weight:500;display:block}
+.radio-lbl small{font-size:11px;color:var(--text3);display:block;margin-top:1px}
+.check-row{display:flex;flex-wrap:wrap;gap:7px}
+.chk{display:flex;align-items:center;gap:6px;padding:6px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:12px;color:var(--text2);transition:all .15s}
+.chk:has(input:checked){border-color:var(--accent);color:var(--accent2);background:rgba(124,109,250,.07)}
+.chk input{accent-color:var(--accent)}
+.barrier-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.bchk{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;color:var(--text2);transition:all .15s}
+.bchk:has(input:checked){border-color:var(--red);color:var(--text);background:rgba(248,113,113,.07)}
+.bchk input{accent-color:var(--red)}
+/* Upload */
+.upload-zone{border:1.5px dashed var(--border2);border-radius:10px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .18s;position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:rgba(124,109,250,.04)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-preview{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.upload-chip{background:rgba(124,109,250,.12);border:1px solid rgba(124,109,250,.25);border-radius:6px;padding:3px 10px;font-size:12px;color:var(--accent2);display:flex;align-items:center;gap:6px}
+.upload-chip button{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;line-height:1}
+/* Bench */
+.bench-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:7px}
+.bench-num{font-family:var(--mono);font-size:11px;color:var(--text3);width:16px}
+.bench-input{flex:1;background:none;border:none;color:var(--text);font-size:13px;outline:none;font-family:inherit}
+.bench-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;transition:color .15s}
+.bench-del:hover{color:var(--red)}
+/* Generating */
+.generating{text-align:center;padding:56px 20px}
+.gen-spinner{width:38px;height:38px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gen-steps{display:flex;flex-direction:column;gap:8px;margin-top:22px;max-width:340px;margin-left:auto;margin-right:auto}
+.gen-step-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text3)}
+.gen-step-row.done{color:var(--green)}.gen-step-row.curr{color:var(--text)}
+.gen-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.gen-step-row.done .gen-dot{background:var(--green)}
+.gen-step-row.curr .gen-dot{background:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.progress-bar{height:3px;background:var(--border2);border-radius:2px;overflow:hidden;margin-top:18px}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s}
+.error-box{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--red);margin-top:14px;white-space:pre-wrap;display:none}
+/* Output */
+.out-tabs{display:flex;gap:3px;background:var(--surface2);border-radius:8px;padding:3px;margin-bottom:18px;flex-wrap:wrap}
+.out-tab{padding:7px 13px;font-size:12px;font-weight:500;border:none;background:none;color:var(--text3);border-radius:6px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.out-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.out-panel{display:none}.out-panel.active{display:block}
+.result-section{margin-bottom:22px}
+.result-section h3{font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.result-section h3::after{content:'';flex:1;height:1px;background:var(--border)}
+.bench-result{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.bench-row{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:3px}
+.bench-row:last-child{margin-bottom:0}
+.bench-row strong{color:var(--text);font-weight:500}
+.bench-tag-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.bench-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.t1{background:rgba(124,109,250,.2);color:var(--accent2)}
+.t2{background:rgba(52,211,153,.15);color:var(--green)}
+.t3{background:rgba(251,146,60,.15);color:var(--orange)}
+.appeal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.appeal-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 15px}
+.appeal-card .tag{font-family:var(--mono);font-size:10px;color:var(--accent);margin-bottom:5px}
+.appeal-card .ttl{font-size:13px;font-weight:600;margin-bottom:4px}
+.appeal-card .dsc{font-size:12px;color:var(--text2);line-height:1.6}
+.lp-block{display:flex;align-items:stretch;gap:0;margin-bottom:6px}
+.lp-num{font-family:var(--mono);font-size:10px;color:var(--text3);width:26px;padding-top:11px;flex-shrink:0}
+.lp-body{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 13px}
+.lp-body .sname{font-size:11px;font-weight:700;color:var(--accent2);margin-bottom:3px}
+.lp-body .spurp{font-size:12px;color:var(--text2);line-height:1.6}
+.lp-body .scopy{font-family:var(--mono);font-size:11px;color:var(--green);margin-top:5px;padding:4px 8px;background:rgba(52,211,153,.07);border-radius:5px}
+.lp-body .shyp{font-size:11px;color:var(--text3);margin-top:5px;padding-left:8px;border-left:2px solid var(--text3)}
+.copy-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;position:relative}
+.copy-item:last-child{margin-bottom:0}
+.copy-label{font-family:var(--mono);font-size:10px;color:var(--orange);margin-bottom:4px}
+.copy-text{font-size:14px;font-weight:600;line-height:1.5;margin-bottom:3px}
+.copy-sub{font-size:12px;color:var(--text2);line-height:1.6}
+.copy-btn{position:absolute;top:10px;right:10px;background:var(--border);border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:3px 8px;border-radius:5px;font-family:inherit;transition:all .15s}
+.copy-btn:hover{background:var(--accent);color:#fff}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.badge-a{background:rgba(124,109,250,.2);color:var(--accent2)}
+.export-row{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+/* Video table */
+.vid-struct{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.vid-struct th{background:var(--surface2);padding:6px 10px;text-align:left;font-weight:500;color:var(--text2);border:1px solid var(--border);font-size:11px}
+.vid-struct td{padding:7px 10px;border:1px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.5}
+.vid-struct td:first-child{font-family:var(--mono);font-size:10px;color:var(--accent2);white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">LP<span>/</span>STRATEGY</div>
+</div>
+<div class="main">
+
+<!-- ═══ STEP 1 ═══ -->
+<div class="step active" id="step1">
+  <div class="step-label">STEP 01</div>
+  <div class="step-title">作るクリエイティブを選ぶ</div>
+  <div class="step-desc">複数選択できます。選んだ種別に応じて入力項目と出力内容が変わります。</div>
+
+  <div class="card">
+    <div class="card-title">🎨 クリエイティブ種別</div>
+    <div class="creative-grid">
+      <div class="cc on" id="cc-lp" onclick="toggleCC('lp')"><div class="cc-icon">📄</div><div class="cc-name">LP</div><div class="cc-desc">構成・FVコピー・セクション設計</div></div>
+      <div class="cc" id="cc-banner" onclick="toggleCC('banner')"><div class="cc-icon">🖼</div><div class="cc-name">SNS広告 バナー</div><div class="cc-desc">ビジュアル指示・コピー案</div></div>
+      <div class="cc" id="cc-video" onclick="toggleCC('video')"><div class="cc-icon">🎬</div><div class="cc-name">SNS広告 動画</div><div class="cc-desc">シナリオ・フック・ナレーション</div></div>
+      <div class="cc" id="cc-flyer" onclick="toggleCC('flyer')"><div class="cc-icon">📋</div><div class="cc-name">チラシ・DM</div><div class="cc-desc">紙面構成・視線導線</div></div>
+      <div class="cc" id="cc-email" onclick="toggleCC('email')"><div class="cc-icon">✉️</div><div class="cc-name">メール・LINE</div><div class="cc-desc">件名・本文構成・CTA</div></div>
+      <div class="cc" id="cc-search" onclick="toggleCC('search')"><div class="cc-icon">🔍</div><div class="cc-name">検索広告</div><div class="cc-desc">見出し・説明文・KW候補</div></div>
+    </div>
+
+    <!-- バナーサブ -->
+    <div id="sub-banner" style="display:none;margin-top:4px">
+      <div class="fg"><label>バナーサイズ</label>
+        <div class="check-row">
+          <label class="chk"><input type="checkbox" name="bannerSize" value="1:1"> 1:1（フィード）</label>
+          <label class="chk"><input type="checkbox" name="bannerSize" value="4:5"> 4:5（縦）</label>
+          <label class="chk"><input type="checkbox" name="bannerSize" value="9:16"> 9:16（ストーリーズ）</label>
+          <label class="chk"><input type="checkbox" name="bannerSize" value="横長"> 横長（ディスプレイ）</label>
+        </div>
+      </div>
+    </div>
+    <!-- 動画サブ -->
+    <div id="sub-video" style="display:none;margin-top:4px">
+      <div class="grid2">
+        <div class="fg"><label>動画尺</label>
+          <div class="check-row">
+            <label class="chk"><input type="checkbox" name="vLen" value="6秒"> 6秒</label>
+            <label class="chk"><input type="checkbox" name="vLen" value="15秒"> 15秒</label>
+            <label class="chk"><input type="checkbox" name="vLen" value="30秒"> 30秒</label>
+            <label class="chk"><input type="checkbox" name="vLen" value="60秒〜"> 60秒〜</label>
+            <label class="chk"><input type="checkbox" name="vLen" value="リール"> リール</label>
+          </div>
+        </div>
+        <div class="fg"><label>動画スタイル</label>
+          <div class="check-row">
+            <label class="chk"><input type="checkbox" name="vStyle" value="UGC風"> UGC風</label>
+            <label class="chk"><input type="checkbox" name="vStyle" value="テスティモニアル"> 証言型</label>
+            <label class="chk"><input type="checkbox" name="vStyle" value="デモ"> デモ・使用シーン</label>
+            <label class="chk"><input type="checkbox" name="vStyle" value="語りかけ"> 語りかけ</label>
+            <label class="chk"><input type="checkbox" name="vStyle" value="アニメ"> アニメ</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- プラットフォームサブ（バナー or 動画）-->
+    <div id="sub-platform" style="display:none;margin-top:4px">
+      <div class="fg"><label>配信プラットフォーム</label>
+        <div class="check-row">
+          <label class="chk"><input type="checkbox" name="platform" value="Meta"> Meta</label>
+          <label class="chk"><input type="checkbox" name="platform" value="TikTok"> TikTok</label>
+          <label class="chk"><input type="checkbox" name="platform" value="YouTube"> YouTube</label>
+          <label class="chk"><input type="checkbox" name="platform" value="X"> X</label>
+          <label class="chk"><input type="checkbox" name="platform" value="LINE"> LINE広告</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-primary" onclick="goStep(2)">次へ：情報を入力する →</button>
+  </div>
+</div>
+
+<!-- ═══ STEP 2 ═══ -->
+<div class="step" id="step2">
+  <div class="step-label">STEP 02</div>
+  <div class="step-title" id="s2title">情報をインプット</div>
+  <div class="step-desc">わかる範囲で入力してください。情報が多いほど精度が上がります。必須は商品名のみです。</div>
+
+  <!-- セクションナビ（動的） -->
+  <div class="sec-nav" id="secNav"></div>
+
+  <!-- 共通：商品概要（常に表示） -->
+  <div class="sec-panel active" id="sp-basic">
+    <div class="card">
+      <div class="card-title">🏷 商品・サービス基本情報</div>
+      <div class="grid2">
+        <div class="fg"><label>商品・サービス名 <span class="required">必須</span></label>
+          <input type="text" id="productName" placeholder="例：〇〇サプリメント"></div>
+        <div class="fg"><label>カテゴリ / 業種</label>
+          <input type="text" id="productCategory" placeholder="例：健康食品、BtoB SaaS"></div>
+        <div class="fg"><label>価格帯</label>
+          <input type="text" id="productPrice" placeholder="例：月額980円、初回無料→3,980円/月"></div>
+        <div class="fg"><label>販売形態</label>
+          <select id="productSalesType">
+            <option value="">選択してください</option>
+            <option>EC（単品購入）</option><option>定期購入・サブスク</option>
+            <option>リード獲得（資料請求・無料相談）</option><option>無料登録・会員獲得</option>
+            <option>BtoB（問い合わせ・商談獲得）</option><option>その他</option>
+          </select></div>
+      </div>
+      <div class="fg"><label>商品・サービスの概要</label>
+        <textarea id="productOverview" placeholder="例：腸内環境を整える乳酸菌サプリ。1日1粒で手軽に続けられる。医師監修・無添加。"></textarea></div>
+      <div class="fg"><label>主な特徴・強み（箇条書きでOK）</label>
+        <textarea id="productFeatures" style="min-height:72px" placeholder="・特徴1&#10;・特徴2"></textarea></div>
+      <div class="fg"><label>実績・数字・証拠（あれば）</label>
+        <textarea id="productProof" style="min-height:60px" placeholder="累計販売10万個、顧客満足度97%、医師推薦など"></textarea></div>
+    </div>
+  </div>
+
+  <!-- ターゲット -->
+  <div class="sec-panel" id="sp-target">
+    <div class="card">
+      <div class="card-title">👤 ターゲット情報</div>
+      <div class="grid2">
+        <div class="fg"><label>メインターゲット層</label>
+          <input type="text" id="productTarget" placeholder="例：30〜40代女性"></div>
+        <div class="fg"><label>サブターゲット層</label>
+          <input type="text" id="productTargetSub" placeholder="例：20代後半ワーキングマザー"></div>
+      </div>
+      <div class="fg"><label>ターゲットの悩み・課題</label>
+        <textarea id="targetPain" placeholder="・忙しくて食事に気を使えない&#10;・便秘・肌荒れに悩んでいる"></textarea></div>
+      <div class="fg"><label>理想の状態</label>
+        <textarea id="targetGoal" style="min-height:60px" placeholder="毎朝スッキリ目覚めたい。肌の調子も改善したい。"></textarea></div>
+      <div class="fg"><label>購買決定要因</label>
+        <textarea id="targetDecision" style="min-height:60px" placeholder="価格よりも安全性・成分を重視。口コミを見てから購入を決める。"></textarea></div>
+    </div>
+  </div>
+
+  <!-- 戦略・課題 -->
+  <div class="sec-panel" id="sp-strategy">
+    <div class="card">
+      <div class="card-title">🎯 戦略・課題</div>
+      <div class="fg"><label>このクリエイティブの目的・KGI</label>
+        <textarea id="strategyGoal" style="min-height:60px" placeholder="月間100件CV獲得。CVR2%以上を目指す。"></textarea></div>
+      <div class="grid2">
+        <div class="fg"><label>集客チャネル / 流入元</label>
+          <input type="text" id="strategyChannel" placeholder="例：Meta広告、Google検索"></div>
+        <div class="fg"><label>配信ターゲティング</label>
+          <input type="text" id="strategyTargeting" placeholder="例：類似オーディエンス、健康関心層"></div>
+      </div>
+      <div class="fg"><label>現状の課題・うまくいっていないこと</label>
+        <textarea id="strategyChallenges" placeholder="・CVRが1%を下回っている&#10;・価格が高いと言われる"></textarea></div>
+      <div class="fg"><label>競合・市場環境</label>
+        <textarea id="strategyCompetitors" style="min-height:60px" placeholder="競合A社は価格訴求。競合B社は医師推薦を前面に。"></textarea></div>
+      <div class="fg"><label>過去施策・反応が良かったクリエイティブ</label>
+        <textarea id="strategyHistory" style="min-height:60px" placeholder="課題訴求バナーはCTRが高い。数字コピーは反応が良い。"></textarea></div>
+    </div>
+  </div>
+
+  <!-- 認知・温度感 -->
+  <div class="sec-panel" id="sp-awareness">
+    <div class="card">
+      <div class="card-title">🌡 認知度・温度感</div>
+      <div class="fg"><label>ターゲットの認知度レベル</label>
+        <div class="radio-group">
+          <label class="radio-lbl"><input type="radio" name="awareness" value="unaware"> <div><span>無自覚層</span><small>悩み自体に気づいていない</small></div></label>
+          <label class="radio-lbl"><input type="radio" name="awareness" value="problem"> <div><span>課題認識層</span><small>悩みはあるが解決策を探していない</small></div></label>
+          <label class="radio-lbl"><input type="radio" name="awareness" value="solution" checked> <div><span>解決策探索層</span><small>解決策を探している・比較検討中</small></div></label>
+          <label class="radio-lbl"><input type="radio" name="awareness" value="product"> <div><span>商品認知層</span><small>この商品を知っているが未購入</small></div></label>
+          <label class="radio-lbl"><input type="radio" name="awareness" value="mostaware"> <div><span>最高認知層</span><small>商品をよく知っており購入意欲が高い</small></div></label>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="fg"><label>流入の温度感</label>
+          <select id="trafficTemp">
+            <option value="">選択</option>
+            <option value="cold">コールド（プッシュ広告）</option>
+            <option value="warm">ウォーム（リターゲティング）</option>
+            <option value="hot">ホット（検索・指名）</option>
+            <option value="mixed">ミックス</option>
+          </select></div>
+        <div class="fg"><label>LP訪問前の接触状況</label>
+          <select id="preTouchpoint">
+            <option value="">選択</option>
+            <option>初回接触（広告→直接LP）</option>
+            <option>複数回広告接触後</option>
+            <option>SNS・コンテンツ経由</option>
+            <option>メール・LINE配信経由</option>
+            <option>検索・指名検索経由</option>
+          </select></div>
+      </div>
+      <div class="fg"><label>訪問者のメンタルモデル（LPを開いた瞬間の心理）</label>
+        <textarea id="visitorMindset" style="min-height:60px" placeholder="「また広告か」と思いながら開く。すでに同カテゴリを試したことがあり「本当に効くの？」と疑念を持っている。"></textarea></div>
+    </div>
+  </div>
+
+  <!-- 購買障壁 -->
+  <div class="sec-panel" id="sp-barrier">
+    <div class="card">
+      <div class="card-title">🚧 購買障壁・既存データ</div>
+      <div class="fg"><label>買わない理由（複数選択可）</label>
+        <div class="barrier-grid" id="barrierGrid">
+          <label class="bchk"><input type="checkbox" value="price"> 💰 価格が高い・躊躇する</label>
+          <label class="bchk"><input type="checkbox" value="trust"> 🔍 信頼性・安全性に不安</label>
+          <label class="bchk"><input type="checkbox" value="continue"> 📅 続けられるか不安</label>
+          <label class="bchk"><input type="checkbox" value="effect"> ❓ 本当に効果があるか疑問</label>
+          <label class="bchk"><input type="checkbox" value="timing"> ⏰ 今じゃなくてもいい感覚</label>
+          <label class="bchk"><input type="checkbox" value="competitor"> ⚖️ 競合と比較して迷っている</label>
+          <label class="bchk"><input type="checkbox" value="scam"> ⚠️ 怪しい・詐欺っぽい</label>
+          <label class="bchk"><input type="checkbox" value="info"> 📋 情報が足りない</label>
+          <label class="bchk"><input type="checkbox" value="cancel"> 🔄 解約・退会が面倒そう</label>
+          <label class="bchk"><input type="checkbox" value="fit"> 🎯 自分に合うかわからない</label>
+        </div>
+      </div>
+      <div class="fg"><label>補足・その他の障壁</label>
+        <textarea id="barrierDetail" style="min-height:56px" placeholder="競合の〇〇と比べて価格が倍近い。初回ハードルは低いが継続率が低い。"></textarea></div>
+      <div class="grid2">
+        <div class="fg"><label>現行CVR（わかれば）</label>
+          <input type="text" id="currentCVR" placeholder="例：0.8%、月100CV"></div>
+        <div class="fg"><label>主な離脱ポイント</label>
+          <input type="text" id="dropoffPoint" placeholder="例：ファーストビュー直後、価格提示後"></div>
+        <div class="fg"><label>ヒートマップ・録画知見</label>
+          <input type="text" id="heatmapInsight" placeholder="例：価格セクションでスクロールが止まる"></div>
+        <div class="fg"><label>A/Bテスト結果</label>
+          <input type="text" id="abTestResult" placeholder="例：課題訴求FVが+30%高CVR"></div>
+      </div>
+      <div class="fg"><label>ユーザーインタビュー・CSの声</label>
+        <textarea id="userVoice" style="min-height:56px" placeholder="「なんとなく信用できそうだった」「成分の詳しさで決めた」"></textarea></div>
+    </div>
+  </div>
+
+  <!-- LP専用：詳細フロー -->
+  <div class="sec-panel" id="sp-lp">
+    <div class="card">
+      <div class="card-title">📄 LP固有の情報</div>
+      <div class="fg"><label>既存LPのFV・構成（あれば）</label>
+        <textarea id="lpCurrent" style="min-height:60px" placeholder="現状のFVは〇〇訴求。課題→解決→価格→保証の流れ。"></textarea></div>
+      <div class="fg"><label>必ず入れたいコンテンツ・要素</label>
+        <textarea id="lpMustHave" style="min-height:60px" placeholder="医師のコメント、before/after写真、返金保証バナーを必ず入れたい。"></textarea></div>
+    </div>
+  </div>
+
+  <!-- 動画専用 -->
+  <div class="sec-panel" id="sp-video">
+    <div class="card">
+      <div class="card-title">🎬 動画固有の情報</div>
+      <div class="fg"><label>使用できる素材・登場人物</label>
+        <textarea id="videoAssets" style="min-height:60px" placeholder="商品パッケージ、商品使用シーン、一般人モデル（30代女性）が使用可能。"></textarea></div>
+      <div class="fg"><label>NGな表現・避けたいこと</label>
+        <textarea id="videoNG" style="min-height:56px" placeholder="過度な効果・効能の表現NG。競合比較NG。"></textarea></div>
+    </div>
+  </div>
+
+  <!-- バナー専用 -->
+  <div class="sec-panel" id="sp-banner">
+    <div class="card">
+      <div class="card-title">🖼 バナー固有の情報</div>
+      <div class="fg"><label>使用できるビジュアル素材</label>
+        <textarea id="bannerAssets" style="min-height:60px" placeholder="商品パッケージ画像、モデル写真（30代女性、白背景）、before/after画像。"></textarea></div>
+      <div class="fg"><label>ブランドカラー・デザイントーン</label>
+        <input type="text" id="bannerDesign" placeholder="例：白×ピンク、清潔感・ナチュラル、フォントは明朝×ゴシック"></div>
+      <div class="fg"><label>反応が良かった過去バナーのポイント</label>
+        <textarea id="bannerHistory" style="min-height:56px" placeholder="数字訴求バナー（97%満足）のCTRが高い。人物ビジュアルよりパッケージ中心の方が反応が良い。"></textarea></div>
+    </div>
+  </div>
+
+  <!-- メール専用 -->
+  <div class="sec-panel" id="sp-email">
+    <div class="card">
+      <div class="card-title">✉️ メール・LINE固有の情報</div>
+      <div class="grid2">
+        <div class="fg"><label>配信タイミング</label>
+          <select id="emailTiming">
+            <option value="">選択</option>
+            <option>初回購入後すぐ</option><option>資料請求後すぐ</option>
+            <option>セミナー後</option><option>定期配信（週次・月次）</option>
+            <option>カート放棄後</option><option>休眠掘り起こし</option>
+          </select></div>
+        <div class="fg"><label>リストの属性・温度感</label>
+          <input type="text" id="emailList" placeholder="例：購入検討中リスト、過去購入者、未開封率高め"></div>
+      </div>
+      <div class="fg"><label>伝えたいこと・目的</label>
+        <textarea id="emailGoal" style="min-height:60px" placeholder="新商品を知らせてLPに誘導する。限定キャンペーンへの申込を促す。"></textarea></div>
+    </div>
+  </div>
+
+  <!-- 検索広告専用 -->
+  <div class="sec-panel" id="sp-search">
+    <div class="card">
+      <div class="card-title">🔍 検索広告固有の情報</div>
+      <div class="fg"><label>狙うキーワード（わかる範囲で）</label>
+        <textarea id="searchKW" style="min-height:60px" placeholder="〇〇サプリ、腸活 サプリ おすすめ、乳酸菌 サプリ 効果"></textarea></div>
+      <div class="grid2">
+        <div class="fg"><label>除外キーワード（あれば）</label>
+          <input type="text" id="searchNegKW" placeholder="例：無料、副作用"></div>
+        <div class="fg"><label>競合の広告文（わかれば）</label>
+          <input type="text" id="searchCompetitor" placeholder="例：○○社は「医師推薦No.1」を訴求"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- チラシ専用 -->
+  <div class="sec-panel" id="sp-flyer">
+    <div class="card">
+      <div class="card-title">📋 チラシ・DM固有の情報</div>
+      <div class="grid2">
+        <div class="fg"><label>サイズ・フォーマット</label>
+          <input type="text" id="flyerSize" placeholder="例：A4片面、B5両面、ハガキ"></div>
+        <div class="fg"><label>配布方法・場所</label>
+          <input type="text" id="flyerDist" placeholder="例：ポスティング、店頭手配布、DM郵送"></div>
+      </div>
+      <div class="fg"><label>必ず入れたい情報・要素</label>
+        <textarea id="flyerMustHave" style="min-height:60px" placeholder="QRコード、電話番号、クーポンコード、キャンペーン期限"></textarea></div>
+    </div>
+  </div>
+
+  <!-- 資料アップロード（共通） -->
+  <div class="sec-panel" id="sp-doc">
+    <div class="card">
+      <div class="card-title">📎 商品資料（任意）</div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchDocTab('upload')">📎 ファイル</button>
+        <button class="tab-btn" onclick="switchDocTab('text')">📝 テキスト</button>
+      </div>
+      <div class="tab-panel active" id="docTab-upload">
+        <div class="upload-zone" id="dropZone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+          <input type="file" id="fileInput" multiple accept=".pdf,.png,.jpg,.jpeg,.webp" onchange="onFileSelect(event)">
+          <div style="font-size:24px;margin-bottom:6px">📄</div>
+          <div style="font-size:13px;color:var(--text2)">PDF・画像をドロップ or クリックして選択</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px">PDF / PNG / JPG / WEBP</div>
+        </div>
+        <div class="upload-preview" id="uploadPreview"></div>
+      </div>
+      <div class="tab-panel" id="docTab-text">
+        <div class="fg"><label>商品資料テキスト</label>
+          <textarea id="productText" style="min-height:120px" placeholder="資料の内容をそのままコピー&ペーストでOKです。"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ベンチマーク（共通） -->
+  <div class="sec-panel" id="sp-bench">
+    <div class="card">
+      <div class="card-title">📊 ベンチマーク（任意）</div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchBenchTab('url')">🔗 URL</button>
+        <button class="tab-btn" onclick="switchBenchTab('ss')">🖼 スクリーンショット</button>
+      </div>
+      <div class="tab-panel active" id="benchTab-url">
+        <div id="benchUrlList"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addBenchUrl()" style="margin-top:4px">＋ URLを追加</button>
+      </div>
+      <div class="tab-panel" id="benchTab-ss">
+        <div class="upload-zone" id="ssDropZone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onSSDrop(event)">
+          <input type="file" id="ssInput" multiple accept=".png,.jpg,.jpeg,.webp" onchange="onSSSelect(event)">
+          <div style="font-size:24px;margin-bottom:6px">🖼</div>
+          <div style="font-size:13px;color:var(--text2)">スクリーンショットをアップロード</div>
+        </div>
+        <div class="upload-preview" id="ssPreview"></div>
+      </div>
+      <div class="fg" style="margin-top:12px"><label>分析の注目ポイント（任意）</label>
+        <textarea id="benchFocus" style="min-height:56px" placeholder="FVのコピー、CTA周り、価格訴求の見せ方 など"></textarea></div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="goStep(1)">← 種別を変更</button>
+    <button class="btn btn-primary" onclick="startGenerate()" style="margin-left:auto">✦ AI生成を開始</button>
+  </div>
+</div>
+
+<!-- ═══ STEP 3: 生成中 ═══ -->
+<div class="step" id="step3">
+  <div class="generating">
+    <div class="gen-spinner"></div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:6px">AIが分析・生成しています</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--accent)" id="genCurStep">準備中…</div>
+    <div class="progress-bar"><div class="progress-fill" id="genProgress" style="width:0%"></div></div>
+    <div class="gen-steps" id="genStepsList"></div>
+  </div>
+  <div class="error-box" id="errorBox"></div>
+  <div id="retryArea" style="display:none;text-align:center;margin-top:16px">
+    <button class="btn btn-ghost" onclick="goStep(2)">← 入力に戻る</button>
+  </div>
+</div>
+
+<!-- ═══ STEP 4: 結果 ═══ -->
+<div class="step" id="step4">
+  <div class="step-label">COMPLETE</div>
+  <div class="step-title" id="resultTitle">訴求戦略レポート</div>
+
+  <div class="out-tabs" id="outTabs"></div>
+  <div id="outPanels"></div>
+
+  <div class="export-row">
+    <button class="btn btn-ghost btn-sm" onclick="copyAllText()">📋 テキストをコピー</button>
+    <button class="btn btn-ghost btn-sm" onclick="resetAll()">↺ 最初からやり直す</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════
+// State
+// ═══════════════════════════════════════
+let selectedCC = new Set(['lp']);
+let uploadedFiles = [];
+let uploadedSS = [];
+let benchUrls = [''];
+let result = null;
+
+// ═══════════════════════════════════════
+// Creative selector
+// ═══════════════════════════════════════
+function toggleCC(t) {
+  if(selectedCC.has(t)) { selectedCC.delete(t); document.getElementById('cc-'+t).classList.remove('on'); }
+  else { selectedCC.add(t); document.getElementById('cc-'+t).classList.add('on'); }
+  const hasSNS = selectedCC.has('banner') || selectedCC.has('video');
+  document.getElementById('sub-banner').style.display   = selectedCC.has('banner') ? 'block' : 'none';
+  document.getElementById('sub-video').style.display    = selectedCC.has('video')  ? 'block' : 'none';
+  document.getElementById('sub-platform').style.display = hasSNS ? 'block' : 'none';
+}
+
+// Initialize LP selected
+document.getElementById('cc-lp').classList.add('on');
+
+// ═══════════════════════════════════════
+// Step navigation
+// ═══════════════════════════════════════
+function goStep(n) {
+  if(n === 2) buildSecNav();
+  document.querySelectorAll('.step').forEach((el,i) => el.classList.toggle('active', i+1===n));
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════
+// Section nav builder (dynamic per CC)
+// ═══════════════════════════════════════
+const SEC_DEFS = [
+  { id:'basic',    label:'商品概要',   always:true },
+  { id:'target',   label:'ターゲット', always:true },
+  { id:'strategy', label:'戦略・課題', always:true },
+  { id:'awareness',label:'認知・温度感',always:true },
+  { id:'barrier',  label:'購買障壁',   always:true },
+  { id:'lp',       label:'LP詳細',     cc:['lp'] },
+  { id:'banner',   label:'バナー詳細', cc:['banner'] },
+  { id:'video',    label:'動画詳細',   cc:['video'] },
+  { id:'email',    label:'メール詳細', cc:['email'] },
+  { id:'search',   label:'検索広告詳細',cc:['search'] },
+  { id:'flyer',    label:'チラシ詳細', cc:['flyer'] },
+  { id:'doc',      label:'資料',       always:true },
+  { id:'bench',    label:'ベンチマーク',always:true },
+];
+
+function buildSecNav() {
+  const visible = SEC_DEFS.filter(s => s.always || (s.cc && s.cc.some(c => selectedCC.has(c))));
+  const nav = document.getElementById('secNav');
+  nav.innerHTML = visible.map((s,i) =>
+    `<button class="sec-btn ${i===0?'active':''}" onclick="switchSec('${s.id}')" id="snb-${s.id}">${s.label}</button>`
+  ).join('');
+  // show only first sec-panel
+  document.querySelectorAll('.sec-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('sp-'+visible[0].id)?.classList.add('active');
+}
+
+function switchSec(id) {
+  document.querySelectorAll('.sec-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`#snb-${id}`)?.classList.add('active');
+  document.querySelectorAll('.sec-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('sp-'+id)?.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// Tab helpers
+// ═══════════════════════════════════════
+function switchDocTab(t) {
+  document.querySelectorAll('#sp-doc .tab-btn').forEach((b,i)=>b.classList.toggle('active',['upload','text'][i]===t));
+  document.querySelectorAll('#sp-doc .tab-panel').forEach((p,i)=>p.classList.toggle('active',['upload','text'][i]===t));
+}
+function switchBenchTab(t) {
+  document.querySelectorAll('#sp-bench .tab-btn').forEach((b,i)=>b.classList.toggle('active',['url','ss'][i]===t));
+  document.querySelectorAll('#sp-bench .tab-panel').forEach((p,i)=>p.classList.toggle('active',['url','ss'][i]===t));
+}
+
+// ═══════════════════════════════════════
+// File upload
+// ═══════════════════════════════════════
+function onDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag')}
+function onDragLeave(e){e.currentTarget.classList.remove('drag')}
+function onDrop(e){e.preventDefault();e.currentTarget.classList.remove('drag');handleFiles([...e.dataTransfer.files])}
+function onFileSelect(e){handleFiles([...e.target.files])}
+async function handleFiles(files){
+  for(const f of files){const b64=await toB64(f);uploadedFiles.push({file:f,b64:b64.split(',')[1],mime:f.type})}
+  renderUploadPreview();
+}
+function renderUploadPreview(){
+  document.getElementById('uploadPreview').innerHTML=uploadedFiles.map((u,i)=>`
+    <div class="upload-chip">${u.mime.includes('pdf')?'📄':'🖼'} ${u.file.name.slice(0,22)}
+    <button onclick="uploadedFiles.splice(${i},1);renderUploadPreview()">×</button></div>`).join('');
+}
+function onSSDrop(e){e.preventDefault();handleSS([...e.dataTransfer.files])}
+function onSSSelect(e){handleSS([...e.target.files])}
+async function handleSS(files){
+  for(const f of files){const b64=await toB64(f);uploadedSS.push({file:f,b64:b64.split(',')[1],mime:f.type})}
+  document.getElementById('ssPreview').innerHTML=uploadedSS.map((u,i)=>`
+    <div class="upload-chip">🖼 ${u.file.name.slice(0,22)}
+    <button onclick="uploadedSS.splice(${i},1);this.closest('.upload-chip').remove()">×</button></div>`).join('');
+}
+function toB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('read failed'));r.readAsDataURL(file)})}
+
+// ═══════════════════════════════════════
+// Bench URLs
+// ═══════════════════════════════════════
+function addBenchUrl(){benchUrls.push('');renderBenchUrls()}
+function renderBenchUrls(){
+  document.getElementById('benchUrlList').innerHTML=benchUrls.map((u,i)=>`
+    <div class="bench-item">
+      <span class="bench-num">${i+1}</span>
+      <input class="bench-input" type="url" placeholder="https://..." value="${esc(u)}" oninput="benchUrls[${i}]=this.value">
+      <button class="bench-del" onclick="benchUrls.splice(${i},1);renderBenchUrls()">×</button>
+    </div>`).join('');
+}
+renderBenchUrls();
+
+// ═══════════════════════════════════════
+// Generate
+// ═══════════════════════════════════════
+const GEN_STEPS_BASE = ['商品情報・市場を分析中','ターゲット心理を深掘り中','購買障壁を特定中','訴求・差別化を設計中','クリエイティブを生成中','結果を整理中'];
+
+async function startGenerate() {
+  const name = document.getElementById('productName').value.trim();
+  if(!name) { alert('商品名を入力してください'); switchSec('basic'); return; }
+
+  goStep(3);
+  document.getElementById('errorBox').style.display='none';
+  document.getElementById('retryArea').style.display='none';
+
+  const stepsEl = document.getElementById('genStepsList');
+  stepsEl.innerHTML = GEN_STEPS_BASE.map((s,i)=>`
+    <div class="gen-step-row" id="gsr${i}"><div class="gen-dot"></div><span>${s}</span></div>`).join('');
+
+  const setStep = (i) => {
+    document.querySelectorAll('.gen-step-row').forEach((el,j)=>{
+      el.classList.toggle('done',j<i);
+      el.classList.toggle('curr',j===i);
+    });
+    document.getElementById('genCurStep').textContent=(GEN_STEPS_BASE[i]||'完了')+'…';
+    document.getElementById('genProgress').style.width=Math.round(i/GEN_STEPS_BASE.length*100)+'%';
+  };
+
+  let si=0;
+  setStep(0);
+  const timer = setInterval(()=>{ si=Math.min(si+1,GEN_STEPS_BASE.length-1); setStep(si); },4000);
+
+  try {
+    const msgs = buildMessages(name);
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:8000, messages:msgs })
+    });
+
+    clearInterval(timer);
+    document.getElementById('genProgress').style.width='100%';
+
+    if(!res.ok) {
+      const errText = await res.text();
+      throw new Error(`API Error ${res.status}: ${errText}`);
+    }
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+    const rawText = (data.content||[]).map(c=>c.text||'').join('');
+    // JSONを抽出（```json ... ``` を除去、最初の{〜最後の}を取り出す）
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if(!jsonMatch) throw new Error('JSONが取得できませんでした。生のレスポンス: '+rawText.slice(0,300));
+    const json = JSON.parse(jsonMatch[0]);
+    result = json;
+
+    await new Promise(r=>setTimeout(r,500));
+    renderResult(json, name);
+    goStep(4);
+
+  } catch(err) {
+    clearInterval(timer);
+    console.error(err);
+    const eb = document.getElementById('errorBox');
+    eb.style.display='block';
+    eb.textContent='生成に失敗しました:\n'+err.message;
+    document.getElementById('retryArea').style.display='block';
+  }
+}
+
+// ═══════════════════════════════════════
+// Build messages
+// ═══════════════════════════════════════
+function buildMessages(name) {
+  const g = id => document.getElementById(id)?.value?.trim()||'';
+  const ccList = [...selectedCC];
+  const ccLabels = {lp:'LP',banner:'SNS広告バナー',video:'SNS広告動画',flyer:'チラシ・DM',email:'メール・LINE',search:'検索広告'};
+
+  // ── テキスト情報を組み立て ──
+  let info = `【制作するクリエイティブ】\n${ccList.map(c=>ccLabels[c]).join('、')}\n`;
+
+  // バナー詳細
+  if(selectedCC.has('banner')){
+    const sizes=[...document.querySelectorAll('input[name="bannerSize"]:checked')].map(e=>e.value);
+    if(sizes.length) info+=`バナーサイズ: ${sizes.join('、')}\n`;
+  }
+  // 動画詳細
+  if(selectedCC.has('video')){
+    const lens=[...document.querySelectorAll('input[name="vLen"]:checked')].map(e=>e.value);
+    const styles=[...document.querySelectorAll('input[name="vStyle"]:checked')].map(e=>e.value);
+    if(lens.length) info+=`動画尺: ${lens.join('、')}\n`;
+    if(styles.length) info+=`動画スタイル: ${styles.join('、')}\n`;
+  }
+  // プラットフォーム
+  const platforms=[...document.querySelectorAll('input[name="platform"]:checked')].map(e=>e.value);
+  if(platforms.length) info+=`配信プラットフォーム: ${platforms.join('、')}\n`;
+
+  info+=`\n【商品基本情報】\n商品名: ${name}\n`;
+  if(g('productCategory')) info+=`カテゴリ: ${g('productCategory')}\n`;
+  if(g('productPrice'))    info+=`価格帯: ${g('productPrice')}\n`;
+  if(g('productSalesType'))info+=`販売形態: ${g('productSalesType')}\n`;
+  if(g('productOverview')) info+=`概要: ${g('productOverview')}\n`;
+  if(g('productFeatures')) info+=`特徴・強み:\n${g('productFeatures')}\n`;
+  if(g('productProof'))    info+=`実績・証拠: ${g('productProof')}\n`;
+
+  if(g('productTarget')||g('targetPain')){
+    info+=`\n【ターゲット】\n`;
+    if(g('productTarget'))    info+=`メインターゲット: ${g('productTarget')}\n`;
+    if(g('productTargetSub')) info+=`サブ: ${g('productTargetSub')}\n`;
+    if(g('targetPain'))       info+=`悩み:\n${g('targetPain')}\n`;
+    if(g('targetGoal'))       info+=`理想: ${g('targetGoal')}\n`;
+    if(g('targetDecision'))   info+=`決定要因: ${g('targetDecision')}\n`;
+  }
+
+  if(g('strategyGoal')||g('strategyChallenges')){
+    info+=`\n【戦略・課題】\n`;
+    if(g('strategyGoal'))        info+=`目的・KGI: ${g('strategyGoal')}\n`;
+    if(g('strategyChannel'))     info+=`チャネル: ${g('strategyChannel')}\n`;
+    if(g('strategyTargeting'))   info+=`ターゲティング: ${g('strategyTargeting')}\n`;
+    if(g('strategyChallenges'))  info+=`課題:\n${g('strategyChallenges')}\n`;
+    if(g('strategyCompetitors')) info+=`競合: ${g('strategyCompetitors')}\n`;
+    if(g('strategyHistory'))     info+=`過去施策: ${g('strategyHistory')}\n`;
+  }
+
+  const awVal = document.querySelector('input[name="awareness"]:checked')?.value;
+  const awLabel={unaware:'無自覚層',problem:'課題認識層',solution:'解決策探索層',product:'商品認知層',mostaware:'最高認知層'};
+  info+=`\n【認知・温度感】\n認知度: ${awLabel[awVal]||'未設定'}\n`;
+  if(g('trafficTemp'))    info+=`温度感: ${g('trafficTemp')}\n`;
+  if(g('preTouchpoint'))  info+=`接触状況: ${g('preTouchpoint')}\n`;
+  if(g('visitorMindset')) info+=`メンタルモデル: ${g('visitorMindset')}\n`;
+
+  const barriers=[...document.querySelectorAll('#barrierGrid input:checked')].map(e=>e.value);
+  if(barriers.length||g('barrierDetail')){
+    info+=`\n【購買障壁】\n`;
+    if(barriers.length) info+=`障壁: ${barriers.join('、')}\n`;
+    if(g('barrierDetail')) info+=`補足: ${g('barrierDetail')}\n`;
+  }
+  if(g('currentCVR'))     info+=`現行CVR: ${g('currentCVR')}\n`;
+  if(g('dropoffPoint'))   info+=`離脱ポイント: ${g('dropoffPoint')}\n`;
+  if(g('heatmapInsight')) info+=`ヒートマップ: ${g('heatmapInsight')}\n`;
+  if(g('abTestResult'))   info+=`A/Bテスト: ${g('abTestResult')}\n`;
+  if(g('userVoice'))      info+=`ユーザーの声: ${g('userVoice')}\n`;
+
+  // クリエイティブ固有
+  if(selectedCC.has('lp')&&(g('lpCurrent')||g('lpMustHave'))){
+    info+=`\n【LP固有情報】\n`;
+    if(g('lpCurrent')) info+=`現状LP: ${g('lpCurrent')}\n`;
+    if(g('lpMustHave')) info+=`必須コンテンツ: ${g('lpMustHave')}\n`;
+  }
+  if(selectedCC.has('video')&&(g('videoAssets')||g('videoNG'))){
+    info+=`\n【動画固有情報】\n`;
+    if(g('videoAssets')) info+=`使用可能素材: ${g('videoAssets')}\n`;
+    if(g('videoNG'))     info+=`NG表現: ${g('videoNG')}\n`;
+  }
+  if(selectedCC.has('banner')&&(g('bannerAssets')||g('bannerDesign'))){
+    info+=`\n【バナー固有情報】\n`;
+    if(g('bannerAssets'))   info+=`素材: ${g('bannerAssets')}\n`;
+    if(g('bannerDesign'))   info+=`デザイントーン: ${g('bannerDesign')}\n`;
+    if(g('bannerHistory'))  info+=`過去バナー知見: ${g('bannerHistory')}\n`;
+  }
+  if(selectedCC.has('email')&&(g('emailGoal'))){
+    info+=`\n【メール固有情報】\n`;
+    if(g('emailTiming')) info+=`配信タイミング: ${g('emailTiming')}\n`;
+    if(g('emailList'))   info+=`リスト属性: ${g('emailList')}\n`;
+    if(g('emailGoal'))   info+=`目的: ${g('emailGoal')}\n`;
+  }
+  if(selectedCC.has('search')&&g('searchKW')){
+    info+=`\n【検索広告固有情報】\n`;
+    if(g('searchKW'))         info+=`狙うKW: ${g('searchKW')}\n`;
+    if(g('searchNegKW'))      info+=`除外KW: ${g('searchNegKW')}\n`;
+    if(g('searchCompetitor')) info+=`競合広告: ${g('searchCompetitor')}\n`;
+  }
+  if(selectedCC.has('flyer')){
+    info+=`\n【チラシ固有情報】\n`;
+    if(g('flyerSize'))     info+=`サイズ: ${g('flyerSize')}\n`;
+    if(g('flyerDist'))     info+=`配布方法: ${g('flyerDist')}\n`;
+    if(g('flyerMustHave')) info+=`必須要素: ${g('flyerMustHave')}\n`;
+  }
+  if(g('productText')) info+=`\n【商品資料テキスト】\n${g('productText')}\n`;
+
+  const validUrls=benchUrls.filter(u=>u.trim());
+  if(validUrls.length) info+=`\n【ベンチマークURL】\n${validUrls.join('\n')}\n`;
+  if(g('benchFocus')) info+=`分析注目ポイント: ${g('benchFocus')}\n`;
+
+  // ── システムプロンプト ──
+  const sys = `あなたはLP・デジタル広告のプロフェッショナルなストラテジスト兼マーケティングリサーチャーです。
+
+## 思考プロセス（必ず内部で実施してから出力すること）
+STEP A: 市場・カテゴリ調査
+ - この市場の購買行動パターン、訴求の飽和度、顧客が持ちやすい不信感を分析する
+STEP B: ターゲット深層心理の分析
+ - 認知度レベルに応じた内的対話・本当の欲求と恐怖・信頼する情報源を推論する
+STEP C: 購買障壁の優先度マッピング
+ - 最も致命的な障壁を特定し、どのセクションでどう解消するかを設計する
+STEP D: 差別化ポジション
+ - 競合が言っていない空白地帯の訴求軸を特定し、ターゲットの深層心理から逆算した訴求を設計する
+
+## 出力ルール
+- 選択されたクリエイティブ種別に応じたフィールドのみ詳細に出力する
+- 未選択の種別は空配列にする
+- マークダウン・コードブロックは使わず純粋なJSONのみを返す
+- 各フィールドには根拠を含め、一般的・表面的な回答を避ける
+- 選択クリエイティブ: ${ccList.map(c=>ccLabels[c]).join('、')}
+
+以下のJSON形式で返すこと:
+{
+  "strategy_thinking": {
+    "market_insight": "市場分析",
+    "target_psychology": "ターゲット深層心理・内的対話",
+    "awareness_approach": "認知度に応じたアプローチ根拠",
+    "key_barrier": "最優先の購買障壁と解消戦略",
+    "white_space": "競合が言っていない差別化の空白地帯"
+  },
+  "target": {
+    "primary": "コアターゲット像（具体的に）",
+    "inner_dialogue": "LPを開いた瞬間の内的対話",
+    "insight": "深層インサイト",
+    "pain": "最大の悩み",
+    "trust_factors": "信頼する情報・表現の特徴"
+  },
+  "appeals": [
+    {"rank":1,"axis":"訴求軸名","headline":"訴求見出し","reason":"根拠"},
+    {"rank":2,"axis":"訴求軸名","headline":"訴求見出し","reason":"根拠"},
+    {"rank":3,"axis":"訴求軸名","headline":"訴求見出し","reason":"根拠"},
+    {"rank":4,"axis":"訴求軸名","headline":"訴求見出し","reason":"根拠"}
+  ],
+  "benefits": [
+    {"type":"機能的ベネフィット","items":["","",""]},
+    {"type":"情緒的ベネフィット","items":["",""]},
+    {"type":"自己実現ベネフィット","items":["",""]}
+  ],
+  "differentiation": ["差別化1","差別化2","差別化3"],
+  "lp_structure": [
+    {"no":1,"section":"ファーストビュー","purpose":"役割","copy_hint":"コピーヒント","hypothesis":"この構成にする仮説"},
+    {"no":2,"section":"課題提起","purpose":"役割","copy_hint":"コピーヒント","hypothesis":"仮説"},
+    {"no":3,"section":"解決策","purpose":"役割","copy_hint":"コピーヒント","hypothesis":"仮説"},
+    {"no":4,"section":"商品特徴","purpose":"役割","copy_hint":"コピーヒント","hypothesis":"仮説"},
+    {"no":5,"section":"実績・証拠","purpose":"役割","copy_hint":"コピーヒント","hypothesis":"仮説"},
+    {"no":6,"section":"安心・保証","purpose":"役割","copy_hint":"コピーヒント","hypothesis":"仮説"},
+    {"no":7,"section":"クロージング","purpose":"役割","copy_hint":"コピーヒント","hypothesis":"仮説"}
+  ],
+  "fv_copies": [
+    {"pattern":"直接訴求","headline":"HL","subheadline":"SHL","cta":"CTA"},
+    {"pattern":"課題解決","headline":"HL","subheadline":"SHL","cta":"CTA"},
+    {"pattern":"数字・実績","headline":"HL","subheadline":"SHL","cta":"CTA"}
+  ],
+  "banner_copies": [
+    {"type":"課題訴求型","main":"","sub":""},
+    {"type":"ベネフィット型","main":"","sub":""},
+    {"type":"数字訴求型","main":"","sub":""},
+    {"type":"限定・緊急型","main":"","sub":""}
+  ],
+  "banner_creative_direction": [
+    {"type":"","visual_concept":"","main_copy":"","sub_copy":"","cta":"","color_tone":"","size_note":""}
+  ],
+  "video_scripts": [
+    {
+      "style":"スタイル","length":"尺",
+      "hook_0_3s":"冒頭フック（最重要）",
+      "structure":[
+        {"sec":"0-3秒","content":"","visual":""},
+        {"sec":"3-10秒","content":"","visual":""},
+        {"sec":"10-25秒","content":"","visual":""},
+        {"sec":"25-30秒","content":"","visual":""}
+      ],
+      "narration_tone":"ナレーション指示",
+      "cta":"CTA"
+    }
+  ],
+  "flyer_structure": {
+    "headline_area":"","eye_flow":"","key_copy":"","sections":["","",""]
+  },
+  "email_scripts": [
+    {"type":"","subject":"","preheader":"","body_structure":"","cta_text":"","cta_note":""}
+  ],
+  "search_ads": {
+    "headlines":["","",""],
+    "descriptions":["",""],
+    "keyword_suggestions":["","","","",""]
+  },
+  "benchmark_analysis": [
+    {"source":"","structure_tags":[],"appeal_tags":[],"design_tags":[],"strength":"","weakness":"","reference_point":""}
+  ]
+}`;
+
+  const userContent = [];
+  userContent.push({type:'text', text: info});
+  uploadedFiles.forEach(u=>{
+    if(u.mime==='application/pdf') userContent.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:u.b64}});
+    else userContent.push({type:'image',source:{type:'base64',media_type:u.mime,data:u.b64}});
+  });
+  uploadedSS.forEach((u,i)=>{
+    userContent.push({type:'text',text:`[ベンチマークSS ${i+1}枚目]`});
+    userContent.push({type:'image',source:{type:'base64',media_type:u.mime,data:u.b64}});
+  });
+  userContent.push({type:'text',text:'上記の情報をもとに、指定のJSON形式で訴求戦略・クリエイティブ設計を出力してください。'});
+
+  return [{role:'system',content:sys},{role:'user',content:userContent}];
+}
+
+// ═══════════════════════════════════════
+// Render Result
+// ═══════════════════════════════════════
+function renderResult(r, name) {
+  document.getElementById('resultTitle').textContent = (name||'商品')+'の戦略レポート';
+
+  const tabs = [
+    {id:'thinking',label:'🧠 戦略思考'},
+    {id:'appeal',  label:'訴求整理'},
+  ];
+  if(selectedCC.has('lp'))     tabs.push({id:'lp',     label:'LP構成'});
+  if(selectedCC.has('lp')||selectedCC.has('banner')) tabs.push({id:'copy',label:'コピー案'});
+  if(selectedCC.has('banner')) tabs.push({id:'banner',label:'バナー'});
+  if(selectedCC.has('video'))  tabs.push({id:'video', label:'動画シナリオ'});
+  if(selectedCC.has('flyer'))  tabs.push({id:'flyer', label:'チラシ'});
+  if(selectedCC.has('email'))  tabs.push({id:'email', label:'メール'});
+  if(selectedCC.has('search')) tabs.push({id:'search',label:'検索広告'});
+  if(benchUrls.some(u=>u.trim())||uploadedSS.length) tabs.push({id:'bench',label:'ベンチマーク'});
+
+  document.getElementById('outTabs').innerHTML = tabs.map((t,i)=>
+    `<button class="out-tab ${i===0?'active':''}" onclick="switchOut('${t.id}')">${t.label}</button>`).join('');
+
+  let panels='';
+
+  // 戦略思考
+  const st=r.strategy_thinking||{};
+  panels+=`<div class="out-panel active" id="op-thinking">
+    <div class="result-section"><h3>市場・カテゴリ分析</h3><div class="bench-result"><div class="bench-row">${esc(st.market_insight||'—')}</div></div></div>
+    <div class="result-section"><h3>ターゲット深層心理・内的対話</h3><div class="bench-result"><div class="bench-row">${esc(st.target_psychology||'—')}</div></div></div>
+    <div class="result-section"><h3>認知度アプローチ根拠</h3><div class="bench-result"><div class="bench-row">${esc(st.awareness_approach||'—')}</div></div></div>
+    <div class="result-section"><h3>最優先の購買障壁と解消戦略</h3><div class="bench-result"><div class="bench-row">${esc(st.key_barrier||'—')}</div></div></div>
+    <div class="result-section"><h3>差別化の空白地帯</h3><div class="bench-result"><div class="bench-row">${esc(st.white_space||'—')}</div></div></div>
+  </div>`;
+
+  // 訴求整理
+  const t=r.target||{};
+  panels+=`<div class="out-panel" id="op-appeal">
+    <div class="result-section"><h3>コアターゲット</h3><div class="bench-result">
+      <div class="bench-row"><strong>ターゲット：</strong>${esc(t.primary||'—')}</div>
+      <div class="bench-row"><strong>内的対話：</strong>${esc(t.inner_dialogue||'—')}</div>
+      <div class="bench-row"><strong>深層インサイト：</strong>${esc(t.insight||'—')}</div>
+      <div class="bench-row"><strong>最大の悩み：</strong>${esc(t.pain||'—')}</div>
+      <div class="bench-row"><strong>信頼する情報：</strong>${esc(t.trust_factors||'—')}</div>
+    </div></div>
+    <div class="result-section"><h3>訴求軸（優先順）</h3>
+      <div class="appeal-grid">${(r.appeals||[]).map(a=>`<div class="appeal-card">
+        <div class="tag">RANK ${a.rank} / ${esc(a.axis)}</div>
+        <div class="ttl">${esc(a.headline)}</div>
+        <div class="dsc">${esc(a.reason)}</div></div>`).join('')}</div></div>
+    <div class="result-section"><h3>ベネフィット整理</h3>
+      ${(r.benefits||[]).map(b=>`<div class="bench-result"><div class="bench-row"><strong>${esc(b.type)}</strong></div>
+        ${(b.items||[]).map(it=>`<div class="bench-row" style="padding-left:12px">・${esc(it)}</div>`).join('')}
+      </div>`).join('')}</div>
+    <div class="result-section"><h3>差別化ポイント</h3><div class="bench-result">
+      ${(r.differentiation||[]).map((d,i)=>`<div class="bench-row"><strong>${i+1}.</strong> ${esc(d)}</div>`).join('')}
+    </div></div>
+  </div>`;
+
+  // LP構成
+  if(selectedCC.has('lp')) {
+    panels+=`<div class="out-panel" id="op-lp">
+      <div class="result-section"><h3>LP構成案</h3>
+        ${(r.lp_structure||[]).map(s=>`<div class="lp-block">
+          <div class="lp-num">0${s.no}</div>
+          <div class="lp-body">
+            <div class="sname">${esc(s.section)}</div>
+            <div class="spurp">${esc(s.purpose)}</div>
+            <div class="scopy">${esc(s.copy_hint)}</div>
+            ${s.hypothesis?`<div class="shyp">仮説: ${esc(s.hypothesis)}</div>`:''}
+          </div></div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // コピー案
+  if(selectedCC.has('lp')||selectedCC.has('banner')) {
+    const bcHtml=(r.banner_copies||[]).filter(c=>c.main).map(c=>`<div class="copy-item">
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('${escA(c.main+'\\n'+c.sub)}')">コピー</button>
+      <div class="copy-label">${esc(c.type)}</div>
+      <div class="copy-text">${esc(c.main)}</div>
+      <div class="copy-sub">${esc(c.sub)}</div>
+    </div>`).join('');
+    const fvHtml=(r.fv_copies||[]).filter(c=>c.headline).map(c=>`<div class="copy-item">
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('${escA(c.headline+'\\n'+c.subheadline+'\\nCTA:'+c.cta)}')">コピー</button>
+      <div class="copy-label">${esc(c.pattern)}</div>
+      <div class="copy-text">${esc(c.headline)}</div>
+      <div class="copy-sub">${esc(c.subheadline)}</div>
+      <div style="margin-top:7px"><span class="badge badge-a">CTA</span> <span style="font-size:12px;color:var(--accent2);margin-left:6px">${esc(c.cta)}</span></div>
+    </div>`).join('');
+    panels+=`<div class="out-panel" id="op-copy">
+      ${bcHtml?`<div class="result-section"><h3>バナー・動画用コピー</h3>${bcHtml}</div>`:''}
+      ${fvHtml?`<div class="result-section" style="margin-top:20px"><h3>LPファーストビューコピー</h3>${fvHtml}</div>`:''}
+    </div>`;
+  }
+
+  // バナークリエイティブ
+  if(selectedCC.has('banner')) {
+    const bcd=r.banner_creative_direction||[];
+    panels+=`<div class="out-panel" id="op-banner">
+      <div class="result-section"><h3>バナークリエイティブ指示</h3>
+        ${bcd.filter(b=>b.main_copy).map(b=>`<div class="copy-item">
+          <button class="copy-btn" onclick="navigator.clipboard.writeText('${escA(b.main_copy+'\\n'+b.sub_copy)}')">コピー</button>
+          <div class="copy-label">${esc(b.type)}</div>
+          <div class="copy-text">${esc(b.main_copy)}</div>
+          <div class="copy-sub">${esc(b.sub_copy)}</div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text3)">🎨 ${esc(b.visual_concept)}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">🎨 トーン: ${esc(b.color_tone)}</div>
+          ${b.size_note?`<div style="font-size:11px;color:var(--text3);margin-top:2px">📐 ${esc(b.size_note)}</div>`:''}
+          <div style="margin-top:6px"><span class="badge badge-a">CTA</span> <span style="font-size:12px;color:var(--accent2);margin-left:6px">${esc(b.cta)}</span></div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // 動画シナリオ
+  if(selectedCC.has('video')) {
+    const vsd=r.video_scripts||[];
+    panels+=`<div class="out-panel" id="op-video">
+      <div class="result-section"><h3>動画シナリオ</h3>
+        ${vsd.map(v=>`<div class="bench-result" style="margin-bottom:14px">
+          <div class="bench-tag-row">
+            <span class="bench-tag t1">${esc(v.style)}</span>
+            <span class="bench-tag t2">${esc(v.length)}</span>
+          </div>
+          <div class="bench-row" style="font-size:14px;font-weight:700;color:var(--orange);margin-bottom:10px">▶ フック（0〜3秒）: ${esc(v.hook_0_3s)}</div>
+          <table class="vid-struct">
+            <thead><tr><th>尺</th><th>内容</th><th>映像指示</th></tr></thead>
+            <tbody>${(v.structure||[]).map(s=>`<tr><td>${esc(s.sec)}</td><td>${esc(s.content)}</td><td>${esc(s.visual)}</td></tr>`).join('')}</tbody>
+          </table>
+          <div class="bench-row" style="margin-top:8px"><strong>ナレーション:</strong> ${esc(v.narration_tone)}</div>
+          <div class="bench-row"><strong>CTA:</strong> ${esc(v.cta)}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // チラシ
+  if(selectedCC.has('flyer')) {
+    const fld=r.flyer_structure||{};
+    panels+=`<div class="out-panel" id="op-flyer">
+      <div class="result-section"><h3>チラシ・DM 紙面構成</h3><div class="bench-result">
+        <div class="bench-row"><strong>見出しエリア:</strong> ${esc(fld.headline_area)}</div>
+        <div class="bench-row"><strong>視線導線:</strong> ${esc(fld.eye_flow)}</div>
+        <div class="bench-row"><strong>主要コピー:</strong> ${esc(fld.key_copy)}</div>
+        ${(fld.sections||[]).map((s,i)=>`<div class="bench-row"><strong>セクション${i+1}:</strong> ${esc(s)}</div>`).join('')}
+      </div></div>
+    </div>`;
+  }
+
+  // メール
+  if(selectedCC.has('email')) {
+    const emd=r.email_scripts||[];
+    panels+=`<div class="out-panel" id="op-email">
+      <div class="result-section"><h3>メール・LINE</h3>
+        ${emd.map(e=>`<div class="copy-item">
+          <div class="copy-label">${esc(e.type)}</div>
+          <div class="copy-text">件名: ${esc(e.subject)}</div>
+          <div class="copy-sub">プレヘッダー: ${esc(e.preheader)}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:6px;line-height:1.6">${esc(e.body_structure)}</div>
+          <div style="margin-top:7px"><span class="badge badge-a">CTA</span> <span style="font-size:12px;color:var(--accent2);margin-left:6px">${esc(e.cta_text)}</span></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${esc(e.cta_note)}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // 検索広告
+  if(selectedCC.has('search')) {
+    const srd=r.search_ads||{};
+    panels+=`<div class="out-panel" id="op-search">
+      <div class="result-section"><h3>検索広告</h3><div class="bench-result">
+        <div class="bench-row" style="margin-bottom:6px"><strong>見出し案:</strong></div>
+        ${(srd.headlines||[]).map((h,i)=>`<div class="bench-row" style="padding-left:12px;font-family:var(--mono);color:var(--accent2)">${i+1}. ${esc(h)}</div>`).join('')}
+        <div class="bench-row" style="margin:10px 0 6px"><strong>説明文:</strong></div>
+        ${(srd.descriptions||[]).map((d,i)=>`<div class="bench-row" style="padding-left:12px">${i+1}. ${esc(d)}</div>`).join('')}
+        <div class="bench-row" style="margin:10px 0 6px"><strong>キーワード候補:</strong></div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding-left:12px">
+          ${(srd.keyword_suggestions||[]).map(k=>`<span class="bench-tag t1">${esc(k)}</span>`).join('')}
+        </div>
+      </div></div>
+    </div>`;
+  }
+
+  // ベンチマーク
+  const ba=r.benchmark_analysis||[];
+  if(ba.length&&ba[0].source) {
+    panels+=`<div class="out-panel" id="op-bench">
+      <div class="result-section"><h3>ベンチマーク分析</h3>
+        ${ba.map(b=>`<div class="bench-result">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:8px;word-break:break-all">${esc(b.source)}</div>
+          <div class="bench-tag-row">
+            ${(b.structure_tags||[]).map(t=>`<span class="bench-tag t1">📐 ${esc(t)}</span>`).join('')}
+            ${(b.appeal_tags||[]).map(t=>`<span class="bench-tag t2">💬 ${esc(t)}</span>`).join('')}
+            ${(b.design_tags||[]).map(t=>`<span class="bench-tag t3">🎨 ${esc(t)}</span>`).join('')}
+          </div>
+          <div class="bench-row"><strong>強み:</strong> ${esc(b.strength)}</div>
+          <div class="bench-row"><strong>改善余地:</strong> ${esc(b.weakness)}</div>
+          <div class="bench-row"><strong>参考点:</strong> ${esc(b.reference_point)}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('outPanels').innerHTML = panels;
+}
+
+function switchOut(id) {
+  document.querySelectorAll('.out-tab').forEach(b=>b.classList.toggle('active',b.textContent.includes(id)||b.getAttribute('onclick').includes("'"+id+"'")));
+  document.querySelectorAll('.out-panel').forEach(p=>p.classList.toggle('active',p.id==='op-'+id));
+}
+
+// ═══════════════════════════════════════
+// Utils
+// ═══════════════════════════════════════
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escA(s){return String(s||'').replace(/'/g,'\\x27').replace(/"/g,'\\x22')}
+
+function copyAllText(){
+  if(!result) return;
+  const r=result;
+  let out='【訴求戦略レポート】\n\n';
+  out+=`■ ターゲット\n${r.target?.primary}\n内的対話: ${r.target?.inner_dialogue}\n\n`;
+  out+=`■ 訴求軸\n${(r.appeals||[]).map(a=>`${a.rank}. ${a.axis}「${a.headline}」`).join('\n')}\n\n`;
+  if(r.lp_structure?.length) out+=`■ LP構成\n${r.lp_structure.map(s=>`${s.no}. ${s.section}: ${s.purpose}`).join('\n')}\n\n`;
+  if(r.fv_copies?.length) out+=`■ FVコピー\n${r.fv_copies.map(c=>`[${c.pattern}] ${c.headline} / ${c.subheadline}`).join('\n')}\n\n`;
+  navigator.clipboard.writeText(out).then(()=>alert('コピーしました'));
+}
+
+function resetAll(){
+  selectedCC=new Set(['lp']);
+  document.querySelectorAll('.cc').forEach(c=>c.classList.remove('on'));
+  document.getElementById('cc-lp').classList.add('on');
+  ['sub-banner','sub-video','sub-platform'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  uploadedFiles=[];uploadedSS=[];benchUrls=[''];result=null;
+  document.querySelectorAll('input[type=text],input[type=url],textarea').forEach(el=>el.value='');
+  document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
+  document.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false);
+  document.querySelectorAll('input[name="awareness"]').forEach(r=>r.checked=r.value==='solution');
+  document.getElementById('uploadPreview').innerHTML='';
+  document.getElementById('ssPreview').innerHTML='';
+  renderBenchUrls();
+  goStep(1);
+}
+</script>
+</body>
+</html>
