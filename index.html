@@ -148,11 +148,52 @@ select option{background:var(--surface2)}
 .vid-struct th{background:var(--surface2);padding:6px 10px;text-align:left;font-weight:500;color:var(--text2);border:1px solid var(--border);font-size:11px}
 .vid-struct td{padding:7px 10px;border:1px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.5}
 .vid-struct td:first-child{font-family:var(--mono);font-size:10px;color:var(--accent2);white-space:nowrap}
+
+/* APIキーモーダル */
+.apikey-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.apikey-modal.open{display:flex}
+.apikey-box{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px;width:440px;max-width:94vw;box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.apikey-box h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.apikey-box p{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.apikey-input-wrap{position:relative;margin-bottom:12px}
+.apikey-input-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 40px 10px 12px;color:var(--text);font-size:13px;font-family:var(--mono);outline:none;transition:border-color .15s}
+.apikey-input-wrap input:focus{border-color:var(--accent)}
+.apikey-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;line-height:1}
+.apikey-hint{font-size:11px;color:var(--text3);margin-bottom:16px}
+.apikey-actions{display:flex;gap:8px;justify-content:flex-end}
+.apikey-status{display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:4px 10px;border-radius:6px;transition:background .15s;margin-left:auto}
+.apikey-status:hover{background:var(--surface2)}
+.apikey-dot{width:7px;height:7px;border-radius:50%}
 </style>
 </head>
 <body>
 <div class="header">
   <div class="logo">LP<span>/</span>STRATEGY</div>
+  <div class="apikey-status" onclick="openApiKeyModal()" id="apikeyStatus" title="APIキー設定">
+    <div class="apikey-dot" id="apikeyDot" style="background:var(--red)"></div>
+    <span id="apikeyLabel">APIキー未設定</span>
+  </div>
+</div>
+
+<!-- APIキーモーダル -->
+<div class="apikey-modal" id="apikeyModal">
+  <div class="apikey-box">
+    <h3>🔑 Anthropic APIキー設定</h3>
+    <p>Anthropic ConsoleでAPIキーを発行してここに入力してください。<br>キーはこのブラウザのLocalStorageに保存され、外部に送信されません。</p>
+    <div class="apikey-input-wrap">
+      <input type="password" id="apikeyInput" placeholder="sk-ant-..." autocomplete="off" onkeydown="if(event.key==='Enter')saveApiKey()">
+      <button class="apikey-toggle" onclick="toggleApiKeyVis()" id="apikeyToggleBtn">👁</button>
+    </div>
+    <div class="apikey-hint">
+      取得先: <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent2)">console.anthropic.com</a>
+      → API Keys → Create Key
+    </div>
+    <div class="apikey-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeApiKeyModal()">キャンセル</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearApiKey()" style="color:var(--red)">削除</button>
+      <button class="btn btn-primary btn-sm" onclick="saveApiKey()">保存して使用</button>
+    </div>
+  </div>
 </div>
 <div class="main">
 
@@ -547,6 +588,68 @@ select option{background:var(--surface2)}
 </div><!-- /main -->
 
 <script>
+
+// ═══════════════════════════════════════
+// API Key Management
+// ═══════════════════════════════════════
+const API_KEY_STORAGE = 'lp_strategy_apikey';
+
+function getApiKey() { return localStorage.getItem(API_KEY_STORAGE)||''; }
+
+function updateApiKeyStatus() {
+  const key = getApiKey();
+  const dot = document.getElementById('apikeyDot');
+  const lbl = document.getElementById('apikeyLabel');
+  if(key) {
+    dot.style.background = 'var(--green)';
+    lbl.textContent = 'APIキー設定済み';
+  } else {
+    dot.style.background = 'var(--red)';
+    lbl.textContent = 'APIキー未設定';
+  }
+}
+
+function openApiKeyModal() {
+  const key = getApiKey();
+  const inp = document.getElementById('apikeyInput');
+  inp.value = key;
+  inp.type = 'password';
+  document.getElementById('apikeyToggleBtn').textContent = '👁';
+  document.getElementById('apikeyModal').classList.add('open');
+  setTimeout(()=>inp.focus(), 50);
+}
+
+function closeApiKeyModal() {
+  document.getElementById('apikeyModal').classList.remove('open');
+}
+
+function toggleApiKeyVis() {
+  const inp = document.getElementById('apikeyInput');
+  const btn = document.getElementById('apikeyToggleBtn');
+  inp.type = inp.type==='password' ? 'text' : 'password';
+  btn.textContent = inp.type==='password' ? '👁' : '🙈';
+}
+
+function saveApiKey() {
+  const key = document.getElementById('apikeyInput').value.trim();
+  if(!key) { alert('APIキーを入力してください'); return; }
+  if(!key.startsWith('sk-ant-')) { alert('APIキーは sk-ant- から始まる文字列です'); return; }
+  localStorage.setItem(API_KEY_STORAGE, key);
+  updateApiKeyStatus();
+  closeApiKeyModal();
+}
+
+function clearApiKey() {
+  if(!confirm('APIキーを削除しますか？')) return;
+  localStorage.removeItem(API_KEY_STORAGE);
+  document.getElementById('apikeyInput').value = '';
+  updateApiKeyStatus();
+  closeApiKeyModal();
+}
+
+// 初期化
+updateApiKeyStatus();
+
 // ═══════════════════════════════════════
 // State
 // ═══════════════════════════════════════
@@ -701,9 +804,21 @@ async function startGenerate() {
 
   try {
     const msgs = buildMessages(name);
+    const apiKey = getApiKey();
+    if(!apiKey) {
+      clearInterval(timer);
+      openApiKeyModal();
+      throw new Error('APIキーが設定されていません。ヘッダーの「APIキー未設定」をクリックして設定してください。');
+    }
+
     const res = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:8000, messages:msgs })
     });
 
